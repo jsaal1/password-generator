@@ -1,8 +1,8 @@
 # passgen
 
 A small command-line password generator written in C++23. Generates
-cryptographically random passwords from configurable character classes and
-copies the result straight to the clipboard.
+random passwords from configurable character classes using the operating
+system's entropy source, and on macOS copies the result to the clipboard.
 
 ## Features
 
@@ -12,11 +12,12 @@ copies the result straight to the clipboard.
 - Uses `std::random_device` for entropy
 - Password memory is wiped on deallocation (`SecureString`, see
   `include/secure_string.hpp`)
-- Copies the generated password to the clipboard (macOS `pbcopy` currently)
+- Copies the generated password to the clipboard on macOS (`pbcopy`)
 
 ## Build
 
-Requires CMake 3.25+ and a C++23 compiler.
+Requires CMake 3.25+ and a C++23 compiler. The code uses
+`std::vector::append_range`, which not all standard libraries support yet.
 
 ```sh
 cmake -B build
@@ -32,7 +33,7 @@ Usage: passgen [OPTIONS]
 
 Options:
   -l, --length <N>     Password length (default: 16, min: 8, max: 128)
-  -s, --symbols        Include symbols (!@#$%&^-?)
+  -s, --symbols        Include symbols (!@#$%&*-?)
   -n, --numeric        Include numeric characters (0-9)
   -u, --uppercase      Include uppercase letters (A-Z)
   -L, --lowercase      Include lowercase letters (a-z)
@@ -48,7 +49,7 @@ At least one character class must be enabled.
 
 ```sh
 # 20-character password with symbols, numbers, upper and lowercase
-passgen -sunl 20
+passgen -sunL -l 20
 
 # same, using long options
 passgen --symbols --numeric --uppercase --lowercase --length 32
@@ -61,8 +62,8 @@ passgen -snuL -S github -U jsaal1
 
 This is a work in progress. Notable gaps:
 
-- Only macOS clipboard support (`pbcopy`) is implemented; other platforms
-  print the password but don't copy it.
+- Only macOS clipboard support (`pbcopy`) is implemented; on other platforms
+  the password is printed but not copied.
 - `--service`/`--user` are accepted but not yet stored anywhere (no keychain
   integration yet).
 

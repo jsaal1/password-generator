@@ -150,6 +150,9 @@ Config parse(int argc, char *argv[]) {
                     break;
                 }
             }
+        } else {
+            throw ParseError{ErrorClass::UnknownOption,
+                             std::format("unexpected argument: {}", arg)};
         }
     }
 
